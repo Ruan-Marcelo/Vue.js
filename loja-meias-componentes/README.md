@@ -1,22 +1,14 @@
-## Autores
+# Loja de meias — Aula 04
 
-- RUAN MARCELO RAMACIOTI LUZ
+**Autor:** Ruan Marcelo Ramacioti Luz
 
 ## Objetivo
 
-Reorganizar a loja de meias de L8-end em componentes e,
-na segunda etapa, atualizar o carrinho por eventos.
-
-O projeto utiliza Vue.js 3 com Options API por CDN.
+A atividade foi feita a partir da loja de meias de L8-end, usando Vue.js 3 com Options API. Primeiro, o produto foi separado em componentes. Depois, o carrinho passou a receber os itens por eventos. A pasta original foi mantida para consulta.
 
 ## Como executar
 
-1. Abra a pasta que contém index.html e main.js no VS Code.
-2. Abra index.html com a extensão Live Server.
-3. Mantenha acesso à internet para carregar o Vue pela CDN.
-4. Abra o console do navegador para acompanhar mensagens e erros.
-
-Não é necessário executar npm install.
+Abra a pasta `loja-meias-componentes` no VS Code e execute o `index.html` com o Live Server. É preciso ter internet para carregar o Vue pela CDN. Não precisa instalar pacotes com npm. Para acompanhar erros e testar os dados, use o console do navegador.
 
 ## Organização dos arquivos
 
@@ -34,132 +26,96 @@ Não é necessário executar npm install.
 
 ### 1. O que retornam Vue.createApp e app.mount?
 
-Em main.js, Vue.createApp retorna o objeto da aplicação,
-armazenado em app. Ele permite registrar os componentes
-com app.component.
+Em `main.js`, `Vue.createApp` retorna a aplicação, guardada em `app`. Esse objeto é usado para registrar os componentes com `app.component`.
 
-Em index.html, app.mount('#app') monta a aplicação no elemento
-de id app e retorna a instância pública do componente raiz,
-armazenada em mountedApp.
-
-Podemos acessar o estado da raiz pelo console, por exemplo,
-com mountedApp.premium = false.
+Já `app.mount('#app')`, no `index.html`, monta a aplicação na div de id `app` e retorna a instância pública da raiz. Ela fica em `mountedApp`, que permite acessar os dados pelo console, por exemplo com `mountedApp.premium = false`.
 
 ### 2. Quais dados foram para product-display?
 
-Foram transferidos product, brand, selectedVariant, details,
-variants e onSale.
+`product`, `brand`, `selectedVariant`, `details`, `variants` e `onSale` foram para o `data()` de `ProductDisplay.js`, pois são dados do produto.
 
-cart permaneceu na raiz porque representa o carrinho da
-aplicação. O produto conhece a variante selecionada, enquanto
-a raiz é responsável por manter o carrinho.
-
-premium também pertence à raiz e é enviado ao produto por prop.
+O `cart` ficou na raiz porque o pai controla o carrinho da página. O produto só precisa informar qual variante foi escolhida. O dado `premium` também fica no pai e é passado ao produto por uma prop.
 
 ### 3. Como selectedVariant determina imagem e disponibilidade?
 
-O método updateVariant(index) altera this.selectedVariant.
+O método `updateVariant(index)` guarda o índice escolhido em `selectedVariant`. As propriedades computadas consultam a variante nessa posição:
 
-A propriedade computada image retorna:
-this.variants[this.selectedVariant].image
+```javascript
+// image
+return this.variants[this.selectedVariant].image;
 
-A propriedade computada inStock retorna:
-this.variants[this.selectedVariant].quantity
+// inStock
+return this.variants[this.selectedVariant].quantity;
+```
 
-Quando o índice muda, o Vue atualiza os valores derivados.
-Não é necessário atribuir valores diretamente a image ou inStock.
-
-Nesta versão, inStock retorna uma quantidade: 50 para a verde
-e 0 para a azul. Zero é tratado como falso nas condições.
+Assim, basta mudar o índice para atualizar a imagem e a disponibilidade. `inStock` retorna a quantidade: 50 para a verde e 0 para a azul. Como zero é falso na condição, a azul aparece sem estoque e seu botão fica desativado.
 
 ### 4. Como premium chega ao produto e altera shipping?
 
-Em index.html, :premium="premium" envia o dado da raiz à prop
-premium declarada em ProductDisplay.js.
+No `index.html`, `:premium="premium"` passa o valor do pai para a prop declarada em `ProductDisplay.js`, com `type: Boolean` e `required: true`.
 
-A prop é declarada com type: Boolean e required: true.
-
-A propriedade computada shipping retorna 'Free' quando premium
-é verdadeiro e 2.99 quando é falso.
-
-Alterar mountedApp.premium atualiza a prop recebida pelo produto
-e, consequentemente, o frete apresentado.
+O cálculo de `shipping` retorna `Free` quando esse valor é verdadeiro e `2.99` quando é falso. Ao mudar `mountedApp.premium` no console, o frete acompanha a alteração.
 
 ### 5. Como verificar a independência das instâncias?
 
-O teste utiliza temporariamente duas tags product-display:
-uma com :premium="true" e outra com :premium="false".
+O teste consiste em colocar duas tags `product-display` na página, uma com `:premium="true"` e outra com `:premium="false"`. Ao selecionar azul na primeira, a segunda deve continuar verde. O frete deve ser `Free` na primeira e `2.99` na segunda.
 
-Ao selecionar azul no primeiro produto, o segundo deve continuar
-verde. Cada instância possui seu próprio selectedVariant.
-
-Os fretes devem ser Free no primeiro e 2.99 no segundo.
-
-Depois do teste, a página deve voltar a apresentar uma única
-instância com :premium="premium".
-
-Os resultados realizados estão registrados na tabela de testes.
+Isso ocorre porque cada chamada de `data()` cria os dados daquela instância, incluindo seu próprio `selectedVariant`. A versão final usa apenas uma tag, com `:premium="premium"`. No teste, selecionar azul no primeiro produto manteve o segundo verde. Os fretes ficaram em Free e 2.99, respectivamente.
 
 ### 6. Por que this.cart += 1 no filho não altera o pai?
 
-Dentro de ProductDisplay, this referencia a instância do produto.
-Ele não referencia o componente raiz, onde cart foi declarado.
+Dentro do produto, `this` aponta para a instância do produto, não para a raiz. Portanto, `this.cart` não acessa o carrinho do pai.
 
-Na etapa 1, addToCart obtém o ID da variante selecionada e
-executa console.log. Isso permite verificar a seleção sem
-tentar alterar o estado do pai.
-
-O carrinho permanece em zero nessa etapa intermediária.
-A atualização por eventos será implementada na etapa 2.
+Na etapa intermediária, `addToCart` apenas obtinha o ID da variante e o mostrava com `console.log`. O contador continuava em zero. Na etapa 2, esse método foi substituído pela emissão do evento.
 
 ## Diferenças em relação à referência L9-end
 
 - A promoção foi preservada com onSale, sale e seu parágrafo.
-- O método provisório addToCart registra o ID no console.
+- Na etapa 1, o método provisório addToCart registrava o ID no console.
 - A lista de detalhes utiliza :key="detail".
 - A imagem possui :alt="title" como alternativa textual.
 
 ## Testes da etapa 1
 
+Todos os testes desta etapa passaram. O comportamento do botão nesta tabela corresponde à versão intermediária, anterior aos eventos.
+
 | Teste | Resultado esperado | Resultado obtido |
 |---|---|---|
-| Abrir a página | Verde disponível e carrinho em zero | Pendente |
-| Selecionar azul | Imagem azul, indisponível e botão desativado | Pendente |
-| Adicionar verde | ID 2234 no console e carrinho em zero | Pendente |
-| Alterar premium para false | Frete muda para 2.99 | Pendente |
-| Conferir promoção | Mensagem de promoção visível | Pendente |
-| Conferir detalhes | Três itens de composição visíveis | Pendente |
-| Testar duas instâncias | Seleções independentes e fretes Free e 2.99 | Pendente |
-| Conferir console | Sem erros ou avisos do Vue | Pendente |
+| Abrir a página | Verde disponível e carrinho em zero | Passou |
+| Selecionar azul | Imagem azul, indisponível e botão desativado | Passou |
+| Adicionar verde | ID 2234 no console e carrinho em zero | Passou |
+| Alterar premium para false | Frete muda para 2.99 | Passou |
+| Conferir promoção | Mensagem de promoção visível | Passou |
+| Conferir detalhes | Três itens de composição visíveis | Passou |
+| Testar duas instâncias | Seleções independentes e fretes Free e 2.99 | Passou |
+| Conferir console | Sem erros ou avisos do Vue | Passou |
 
 ## Etapa 2 — Comunicação por eventos
 
-O carrinho da raiz passou de um número para um array de IDs.
+O `cart` passou de um número para um array de IDs. Em `ProductDisplay.js`, `emits` declara o evento `add-to-cart`. Ao clicar no botão, `addToCart` verifica se há estoque e envia o ID:
 
-Em ProductDisplay.js, a opção emits declara o evento add-to-cart.
-O método addToCart verifica a disponibilidade e emite o evento
-com o ID da variante selecionada.
+```javascript
+addToCart() {
+  if (!this.inStock) return;
 
-Em index.html, @add-to-cart="updateCart" conecta o evento ao
-método da raiz. O contador utiliza cart.length.
+  this.$emit("add-to-cart", this.variants[this.selectedVariant].id);
+}
+```
 
-Em main.js, updateCart(id) executa this.cart.push(id).
-Dois cliques na variante verde produzem [2234, 2234].
+No `index.html`, `@add-to-cart="updateCart"` recebe esse evento e chama o método do pai. Em `main.js`, `updateCart(id)` adiciona o ID com `this.cart.push(id)`.
 
-O filho comunica a intenção de adicionar. A raiz recebe o ID
-e altera seu próprio carrinho, sem acesso direto por $parent.
+Dois cliques na verde deixam o array como `[2234, 2234]`. O contador mostra `cart.length`, ou seja, dois itens. Dessa forma, quem altera o carrinho é a própria raiz, sem usar `$parent` no produto.
 
-Adicionar ao carrinho não reduz o estoque neste exercício.
-O carrinho permanece apenas na memória e reinicia ao recarregar.
+Nesta atividade, adicionar itens não desconta o estoque. O carrinho também não é salvo: ao recarregar a página, ele volta a ficar vazio.
 
 ## Testes da etapa 2
 
 | Teste | Resultado esperado | Resultado obtido |
 |---|---|---|
-| Recarregar | Carrinho vazio e Cart(0) | Pendente |
-| Adicionar verde duas vezes | Cart(2) e array [2234, 2234] | Pendente |
-| Selecionar azul | Imagem azul, botão desativado e carrinho inalterado | Pendente |
-| Voltar à verde e adicionar | Cart(3) e array [2234, 2234, 2234] | Pendente |
-| Alterar premium para false | Frete 2.99, preservando carrinho e seleção | Pendente |
-| Conferir detalhes e promoção | Ambos preservados | Pendente |
-| Conferir console | Sem erros ou avisos do Vue | Pendente |
+| Recarregar | Carrinho vazio e Cart(0) | Passou |
+| Adicionar verde duas vezes | Cart(2) e array [2234, 2234] | Passou |
+| Selecionar azul | Imagem azul, botão desativado e carrinho inalterado | Passou |
+| Voltar à verde e adicionar | Cart(3) e array [2234, 2234, 2234] | Passou |
+| Alterar premium para false | Frete 2.99, preservando carrinho e seleção | Passou |
+| Conferir detalhes e promoção | Ambos preservados | Passou |
+| Conferir console | Sem erros ou avisos do Vue | Passou |
