@@ -13,12 +13,12 @@ app.component('product-display', {
         <img v-bind:src="image">
       </div>
       <div class="product-info">
-        <h1>{{ titulo }}</h1>
+        <h1>{{ title }}</h1>
 
-        <p v-if="inStock">Estoque disponivel</p>
-        <p v-else>Fora de estoque</p>
+        <p v-if="inStock">In Stock</p>
+        <p v-else>Out of Stock</p>
 
-        <p>Frete: {{ shipping }}</p>
+        <p>Shipping: {{ shipping }}</p>
         <ul>
           <li v-for="detail in details">{{ detail }}</li>
         </ul>
@@ -36,15 +36,15 @@ app.component('product-display', {
           :class="{ disabledButton: !inStock }" 
           :disabled="!inStock" 
           v-on:click="addToCart">
-          Adicionar ao Carrinho
+          Add to Cart
         </button>
-        
+
         <button 
         class="button" 
         :class="{ disabledButton: !inStock }" 
         :disabled="!inStock" 
         @click="removeFromCart">
-        Remover Item
+        Remove Item
       </button>
 
       </div>
