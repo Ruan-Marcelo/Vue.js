@@ -1,9 +1,11 @@
-app.component('product-display', {
+app.component("product-display", {
+  emits: ["add-to-cart"],
+
   props: {
     premium: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
 
   template: /*html*/ `
@@ -46,66 +48,67 @@ app.component('product-display', {
 
   data() {
     return {
-      product: 'Socks',
-      brand: 'Vue Mastery',
+      product: "Socks",
+      brand: "Vue Mastery",
       selectedVariant: 0,
-      details: ['50% cotton', '30% wool', '20% polyester'],
+      details: ["50% cotton", "30% wool", "20% polyester"],
       variants: [
         {
           id: 2234,
-          color: 'green',
-          image: './assets/images/socks_green.jpg',
-          quantity: 50
+          color: "green",
+          image: "./assets/images/socks_green.jpg",
+          quantity: 50,
         },
         {
           id: 2235,
-          color: 'blue',
-          image: './assets/images/socks_blue.jpg',
-          quantity: 0
-        }
+          color: "blue",
+          image: "./assets/images/socks_blue.jpg",
+          quantity: 0,
+        },
       ],
-      onSale: true
-    }
+      onSale: true,
+    };
   },
 
   methods: {
     addToCart() {
-      const id = this.variants[this.selectedVariant].id
-      console.log('Variante selecionada para o carrinho:', id)
+      if (!this.inStock) return;
+
+      this.$emit("add-to-cart", this.variants[this.selectedVariant].id);
     },
 
     updateVariant(index) {
-      this.selectedVariant = index
-    }
+      this.selectedVariant = index;
+    },
   },
 
   computed: {
     title() {
-      return this.brand + ' ' + this.product
+      return this.brand + " " + this.product;
     },
 
     image() {
-      return this.variants[this.selectedVariant].image
+      return this.variants[this.selectedVariant].image;
     },
 
     inStock() {
-      return this.variants[this.selectedVariant].quantity
+      return this.variants[this.selectedVariant].quantity;
     },
 
     sale() {
       if (this.onSale) {
-        return this.brand + ' ' + this.product + ' is on sale.'
+        return this.brand + " " + this.product + " is on sale.";
       }
 
-      return ''
+      return "";
     },
 
     shipping() {
       if (this.premium) {
-        return 'Free'
+        return "Free";
       }
 
-      return 2.99
-    }
-  }
-})
+      return 2.99;
+    },
+  },
+});
