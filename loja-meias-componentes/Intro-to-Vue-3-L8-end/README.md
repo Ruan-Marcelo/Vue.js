@@ -132,7 +132,34 @@ A atualização por eventos será implementada na etapa 2.
 | Testar duas instâncias | Seleções independentes e fretes Free e 2.99 | Pendente |
 | Conferir console | Sem erros ou avisos do Vue | Pendente |
 
-## Situação da entrega
+## Etapa 2 — Comunicação por eventos
 
-Etapa 1 documentada neste ponto do projeto.
-A etapa 2 de comunicação por eventos ainda será implementada.
+O carrinho da raiz passou de um número para um array de IDs.
+
+Em ProductDisplay.js, a opção emits declara o evento add-to-cart.
+O método addToCart verifica a disponibilidade e emite o evento
+com o ID da variante selecionada.
+
+Em index.html, @add-to-cart="updateCart" conecta o evento ao
+método da raiz. O contador utiliza cart.length.
+
+Em main.js, updateCart(id) executa this.cart.push(id).
+Dois cliques na variante verde produzem [2234, 2234].
+
+O filho comunica a intenção de adicionar. A raiz recebe o ID
+e altera seu próprio carrinho, sem acesso direto por $parent.
+
+Adicionar ao carrinho não reduz o estoque neste exercício.
+O carrinho permanece apenas na memória e reinicia ao recarregar.
+
+## Testes da etapa 2
+
+| Teste | Resultado esperado | Resultado obtido |
+|---|---|---|
+| Recarregar | Carrinho vazio e Cart(0) | Pendente |
+| Adicionar verde duas vezes | Cart(2) e array [2234, 2234] | Pendente |
+| Selecionar azul | Imagem azul, botão desativado e carrinho inalterado | Pendente |
+| Voltar à verde e adicionar | Cart(3) e array [2234, 2234, 2234] | Pendente |
+| Alterar premium para false | Frete 2.99, preservando carrinho e seleção | Pendente |
+| Conferir detalhes e promoção | Ambos preservados | Pendente |
+| Conferir console | Sem erros ou avisos do Vue | Pendente |
